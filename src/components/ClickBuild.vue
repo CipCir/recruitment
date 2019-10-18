@@ -11,12 +11,20 @@
     </div>
     <div id="OutResult">
       <div class="answerRow" v-for="(ans,indx) in answersArr" :key="ans">
-        <span @click="moveAnsw(true,indx)" class="srtBtn left">&#8593;</span>
-        <span class="AnswOpt">
-          <span>{{indx+1}}</span>
-          <span :class="'Indent'+parseInt(indx+1)">{{ans}}</span>
+        <span @click="moveAnsw(false,indx)" class="srtBtn left">
+          <span v-if="indx!=answersArr.length-1">&#8595;</span>
         </span>
-        <span @click="moveAnsw(false,indx)" class="srtBtn right">&#8595;</span>
+        <span
+          class="AnswOpt"
+          v-bind:class="{ move_first: move_first==indx, move_second: move_second==indx, last_ans: indx==answersArr.length-1 }"
+        >
+          <span class="AnswIndx">{{indx+1}}</span>
+          <!-- <span>--{{TabIndx[indx]}}</span> -->
+          <span :class="'Indent'+TabIndx[indx]">{{ans}}</span>
+        </span>
+        <span @click="moveAnsw(true,indx)" class="srtBtn right">
+          <span v-if="indx>0">&#8593;</span>
+        </span>
       </div>
     </div>
   </div>
@@ -29,6 +37,7 @@ export default {
     return {
       inputVar,
       answersArr: [],
+      TabIndx: [],
       move_first: -1,
       move_second: -1,
       animation_delay: 500
@@ -38,15 +47,60 @@ export default {
     this.inputVar.sort(() => Math.random() - 0.5);
   },
   methods: {
+    GetIndex(indx) {
+      return 0;
+    },
+    // GetIndex(indx) {
+    //   let nrElem = this.answersArr.length;
+    //   let mij, n;
+    //   //impare
+    //   if (nrElem % 2 == 1) {
+    //     mij = Math.round(nrElem / 2); //3
+    //     n = Math.abs(indx + 1 - mij);
+    //   } else {
+    //     mij = Math.round(nrElem / 2); //3
+    //     if (indx + 1 > mij) {
+    //       n = indx - mij;
+    //     } else {
+    //       n = mij - indx - 1;
+    //     }
+    //   }
+
+    //   return mij - n;
+    // },
+
     AddSel(sel) {
       let valIndx = this.answersArr.indexOf(sel);
       if (valIndx > -1) {
         this.answersArr.splice(valIndx, 1);
+        this.UpdateTabIndex();
       } else {
-        if (this.answersArr.length < 10) {
-          this.answersArr.push(sel);
-        }
+        // if (this.answersArr.length < 10) {
+        this.answersArr.push(sel);
+        this.UpdateTabIndex();
+        // }
       }
+    },
+    UpdateTabIndex() {
+      let vueObj = this;
+      let Tx = 0;
+      let lastUp = false;
+      this.TabIndx = [];
+
+      this.answersArr.forEach(function(elm, indx) {
+        if (elm.substring(0, 2) == "</") {
+          if (!lastUp) {
+            Tx--;
+          }
+          lastUp = false;
+        } else {
+          if (lastUp) {
+            Tx++;
+          }
+          lastUp = true;
+        }
+        vueObj.TabIndx[indx] = Tx;
+      });
     },
     moveAnsw(isUpInList, currentPos) {
       if (isUpInList) {
@@ -65,6 +119,7 @@ export default {
             // vueOBJ.update_vals(currentPos, vueOBJ.answersArr[currentPos - 1]);
             // this.answersArr[currentPos-1]=temp_val;
             vueOBJ.$set(vueOBJ.answersArr, currentPos - 1, temp_val);
+            vueOBJ.UpdateTabIndex();
             // vueOBJ.update_vals(currentPos - 1, temp_val);
           }, vueOBJ.animation_delay);
         } else {
@@ -90,6 +145,7 @@ export default {
             // vueOBJ.update_vals(currentPos, vueOBJ.answersArr[currentPos + 1]);
             // this.answersArr[currentPos-1]=temp_val;
             vueOBJ.$set(vueOBJ.answersArr, currentPos + 1, temp_val);
+            vueOBJ.UpdateTabIndex();
             // vueOBJ.update_vals(currentPos + 1, temp_val);
           }, vueOBJ.animation_delay);
         } else {
@@ -97,7 +153,6 @@ export default {
           return false;
         }
       }
-      this.attempts++;
     },
     animate_switch(pos1, pos2) {
       // console.log("start");
@@ -121,38 +176,53 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.Indent1,
-.Indent10 {
-  margin-left: 10px;
+.AnswIndx {
+  width: 25px;
+  display: inline-block;
+}
+.Indent0 {
+  margin-left: 0px;
   color: black;
 }
-.Indent2,
-.Indent9 {
+.Indent1 {
+  margin-left: 10px;
+  color: rgb(234, 108, 0);
+}
+.Indent2 {
   margin-left: 20px;
-  color: rgb(240, 15, 15);
+  color: rgb(0, 112, 208);
 }
-.Indent3,
-.Indent8 {
+.Indent3 {
   margin-left: 30px;
-  color: rgb(90, 161, 46);
+  color: rgb(33, 136, 47);
 }
-.Indent4,
-.Indent7 {
+.Indent4 {
   margin-left: 40px;
-  color: rgb(12, 49, 236);
+  color: rgb(212, 192, 46);
 }
-.Indent5,
-.Indent6 {
+.Indent5 {
   margin-left: 50px;
-  color: rgb(190, 19, 224);
+  color: rgb(102, 6, 37);
+}
+.Indent6 {
+  margin-left: 60px;
+  color: rgb(21, 5, 255);
+}
+.Indent7 {
+  margin-left: 70px;
+  color: rgb(18, 171, 0);
 }
 #OutResult {
   font-size: large;
   margin-left: 10px;
+  padding: 10px;
+  margin-top: 10px;
 }
 .AnswOpt {
   background: aliceblue;
-  margin: 5px 0;
+  margin: 3px 0;
+  width: 50%;
+  display: inline-block;
 }
 .selOpt {
   background: #a9e0a9;
@@ -189,26 +259,20 @@ export default {
   transition: all 0.1s ease-in-out;
   opacity: 0.7;
 }
-.answerRow {
-  /* background: #aaa; */
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-}
-.answerRow > .srtBtn {
-  flex-grow: 1;
-  /* flex: 1 1 30%; */
-}
-.answerRow > .answer {
-  flex-grow: 1;
-  /* flex: 1 1 30%; */
-}
+
 .srtBtn {
-  /* background-color: #fff4e6; */
-  /* border: 1px solid #f76707; */
-  font-size: 30px;
+  cursor: pointer;
   background-color: #49bfbc;
   color: white;
+  width: 20px;
+  display: inline-block;
+  text-align: center;
+}
+.srtBtn.left {
+  margin-right: 5px;
+}
+
+.srtBtn.right {
+  margin-left: 5px;
 }
 </style>
