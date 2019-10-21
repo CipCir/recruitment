@@ -54,16 +54,32 @@
 							<div id="question" class="question">
 								<label for="_Q0">
 									<div></div>
-									<span class="mrQuestionText" >Create a valid html table structure using as many table specific tags as possible</span>
+									<span class="mrQuestionText" >Considering the below container with id 'parentDiv' what steps would you take using plain JavaScript to add a new span inside it and set the span width and height to 200 px and fill it with yellow?</span>
+										<p style="padding: 10px; background-color: lightblue;margin:10px">&lt;div id='parentDiv'&gt;&lt;&#92;div&gt;</p>
+										<p>Note that the order of the steps is important and you need to provide only the needed steps.</p>
 								</label>
 							</div>
 							<div class="row pictureTop">
 								<div></div>
 								<span class="mrBannerText" >		
                   <script>
-					var inputVar=["<table>","</table>","<tr>","</tr>","<td>","</td>", "<tr>", "</tr>", "<td>", "</td>","<th>","</th>","<span>","</span>","<div>","</div>","<ts>","</ts>","<tp>","</tp>","<thead>","</thead>","<tbody>","</tbody>"];
+					var inputVar=[
+					"//create a new span element with:",
+					"var elm=document.createElement('span');elm.setAttribute('id','mySpan');",
+					"//append the span to the div:",
+					"document.getElementById('mySpan').appendChild(elm); ",
+					"document.getElementById('parentDiv').appendChild(elm); ",
+					 "//select the span using",
+					 "var mySpan=document.getElementById('mySpan')",
+					  "//add css style for width and height",
+					  "mySpan.setAttribute('width','200px');mySpan.setAttribute('height','200px')",
+					  "//fill with color yellow",
+					  "mySpan.setAttribute('color', 'yellow');",
+					  "mySpan.setAttribute('background', 'yellow');",
+					  "mySpan.setAttribute('background-color', 'yellow');"
+					]
 					var appType="ClickBuild";
-					var appSetup={ FormatIndent:true}
+					var appSetup={ FormatIndent:false}
                   </script>                                                             
    
                   <div id="app"></div>

@@ -1,16 +1,22 @@
 <template>
   <div id="CompCont">
+    <div id="Instruction">
+      Build your answer by selecting the available options from the below list and using the up/down arrows to order them.
+      <br />Note that you can unselect an answer to remove it.
+    </div>
     <div id="InptAnswers">
       <span
         class="selOpt"
-        :class="{'selected':answersArr.indexOf(sel)>-1}"
-        v-for="(sel,indx) in inputVar"
-        :key="indx"
+        :class="{'selected':answersArr.map(function(e) {
+          return e.id;
+        }).indexOf(sel.id)>-1}"
+        v-for="sel in inputVarArr"
+        :key="sel.id"
         @click="AddSel(sel)"
-      >{{sel}}</span>
+      >{{sel.lbl}}</span>
     </div>
     <div id="OutResult">
-      <div class="answerRow" v-for="(ans,indx) in answersArr" :key="ans">
+      <div class="answerRow" v-for="(ans,indx) in answersArr" :key="ans.id">
         <span @click="moveAnsw(false,indx)" class="srtBtn left">
           <span v-if="indx!=answersArr.length-1">&#8595;</span>
         </span>
@@ -20,7 +26,12 @@
         >
           <span class="AnswIndx">{{indx+1}}</span>
           <!-- <span>--{{TabIndx[indx]}}</span> -->
-          <span :class="'Indent'+TabIndx[indx]">{{ans}}</span>
+          <span
+            v-if="appSetup.FormatIndent"
+            :style="'margin-left:'+(TabIndx[indx]*Indent)+'px;'"
+            :class="'Indent'+TabIndx[indx]"
+          >{{ans.lbl}}</span>
+          <span v-else>{{ans.lbl}}</span>
         </span>
         <span @click="moveAnsw(true,indx)" class="srtBtn right">
           <span v-if="indx>0">&#8593;</span>
@@ -35,18 +46,37 @@ export default {
   name: "ClickBuild",
   data() {
     return {
-      inputVar,
+      inputVarArr: [],
+      appSetup,
       answersArr: [],
       TabIndx: [],
+      Indent: 20,
       move_first: -1,
       move_second: -1,
       animation_delay: 500
     };
   },
   created() {
-    this.inputVar.sort(() => Math.random() - 0.5);
+    let vueOBJ = this;
+    inputVar
+      .sort(() => Math.random() - 0.5)
+      .forEach((elm, indx) => {
+        vueOBJ.inputVarArr.push({ lbl: elm, id: indx });
+      });
+    this.inputVarArr;
+    $("#mrForm").on("submit", function() {
+      vueOBJ.SetOutput();
+      return false;
+    });
   },
   methods: {
+    SetOutput() {
+      let output = "";
+      this.answersArr.forEach(elm => {
+        output += elm.lbl;
+      });
+      $(".mrEdit").val(output);
+    },
     GetIndex(indx) {
       return 0;
     },
@@ -70,7 +100,12 @@ export default {
     // },
 
     AddSel(sel) {
-      let valIndx = this.answersArr.indexOf(sel);
+      // let valIndx = this.answersArr.indexOf(sel);
+      let valIndx = this.answersArr
+        .map(function(e) {
+          return e.id;
+        })
+        .indexOf(sel.id);
       if (valIndx > -1) {
         this.answersArr.splice(valIndx, 1);
         this.UpdateTabIndex();
@@ -88,7 +123,7 @@ export default {
       this.TabIndx = [];
 
       this.answersArr.forEach(function(elm, indx) {
-        if (elm.substring(0, 2) == "</") {
+        if (elm.lbl.substring(0, 2) == "</") {
           if (!lastUp) {
             Tx--;
           }
@@ -98,6 +133,9 @@ export default {
             Tx++;
           }
           lastUp = true;
+        }
+        if (Tx < 0) {
+          Tx = 0;
         }
         vueObj.TabIndx[indx] = Tx;
       });
@@ -176,40 +214,39 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+#Instruction {
+  color: grey;
+  margin: 10px;
+  padding: 5px;
+  border-left: solid 4px orange;
+}
 .AnswIndx {
   width: 25px;
   display: inline-block;
+  margin-right: 5px;
 }
 .Indent0 {
-  margin-left: 0px;
   color: black;
 }
 .Indent1 {
-  margin-left: 10px;
   color: rgb(234, 108, 0);
 }
 .Indent2 {
-  margin-left: 20px;
   color: rgb(0, 112, 208);
 }
 .Indent3 {
-  margin-left: 30px;
   color: rgb(33, 136, 47);
 }
 .Indent4 {
-  margin-left: 40px;
   color: rgb(212, 192, 46);
 }
 .Indent5 {
-  margin-left: 50px;
   color: rgb(102, 6, 37);
 }
 .Indent6 {
-  margin-left: 60px;
   color: rgb(21, 5, 255);
 }
 .Indent7 {
-  margin-left: 70px;
   color: rgb(18, 171, 0);
 }
 #OutResult {
@@ -221,7 +258,7 @@ export default {
 .AnswOpt {
   background: aliceblue;
   margin: 3px 0;
-  width: 50%;
+  width: 90%;
   display: inline-block;
 }
 .selOpt {

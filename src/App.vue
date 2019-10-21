@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <ClickBuild />
+    <ClickBuild v-if="appType=='ClickBuild'" />
   </div>
 </template>
 
@@ -11,6 +11,11 @@ export default {
   name: "app",
   components: {
     ClickBuild
+  },
+  data() {
+    return {
+      appType
+    };
   }
 };
 </script>
