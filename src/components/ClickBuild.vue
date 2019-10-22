@@ -15,35 +15,73 @@
         @click="AddSel(sel)"
       >{{sel.lbl}}</span>
     </div>
-    <div id="OutResult">
-      <div class="answerRow" v-for="(ans,indx) in answersArr" :key="ans.id">
-        <span @click="moveAnsw(false,indx)" class="srtBtn left">
-          <span v-if="indx!=answersArr.length-1">&#8595;</span>
-        </span>
-        <span
-          class="AnswOpt"
+    <div id="OutResult" class="answerContainer">
+      <!-- <div class="answerRow" v-for="(ans,indx) in answersArr" :key="ans.id">
+        <div class="srtBtn left">
+          <span v-if="indx!=answersArr.length-1">
+            <i class="fa fa-bars"></i>
+          </span>
+        </div>
+        <div
+          class="AnswOpt dns"
           v-bind:class="{ move_first: move_first==indx, move_second: move_second==indx, last_ans: indx==answersArr.length-1 }"
         >
-          <span class="AnswIndx">{{indx+1}}</span>
-          <!-- <span>--{{TabIndx[indx]}}</span> -->
+          <span class="AnswIndx innText">{{indx+1}}</span>          
           <span
             v-if="appSetup.FormatIndent"
             :style="'margin-left:'+(TabIndx[indx]*Indent)+'px;'"
+            class="innText"
             :class="'Indent'+TabIndx[indx]"
           >{{ans.lbl}}</span>
           <span v-else>{{ans.lbl}}</span>
-        </span>
-        <span @click="moveAnsw(true,indx)" class="srtBtn right">
-          <span v-if="indx>0">&#8593;</span>
-        </span>
-      </div>
+        </div>
+        <div class="srtBtn right">
+          <span v-if="indx>0">
+            <i class="fa fa-bars"></i>
+          </span>
+        </div>
+      </div>-->
     </div>
+    <draggable
+      id="OutResult"
+      v-model="answersArr"
+      @choose="moved($event)"
+      @start="drag=true"
+      @end="drag=false,UpdateTabIndex()"
+    >
+      <div
+        class="answerRow"
+        v-bind:class="{ move_first: move_first==indx, move_second: move_second==indx, last_ans: indx==answersArr.length-1}"
+        v-for="(element,indx) in answersArr"
+        :key="element.id"
+      >
+        <!-- {{element.lbl}} -->
+        <span class="AnswIndx innText">{{indx+1}}</span>
+        <span
+          v-if="appSetup.FormatIndent"
+          :style="'margin-left:'+(TabIndx[indx]*Indent)+'px;'"
+          class="innText"
+          :class="'Indent'+TabIndx[indx]"
+        >{{element.lbl}}</span>
+        <span v-else>{{element.lbl}}</span>
+        <div class="BtnCont right">
+          <span class="srtBtn">
+            <i class="fas fa-sort"></i>
+          </span>
+          <span class="closeBtn" @click="RemoveOpt(element)">
+            <i class="fas fa-trash-alt"></i>
+          </span>
+        </div>
+      </div>
+    </draggable>
   </div>
 </template>
 
 <script>
+import draggable from "vuedraggable";
 export default {
   name: "ClickBuild",
+  components: { draggable },
   data() {
     return {
       inputVarArr: [],
@@ -53,51 +91,43 @@ export default {
       Indent: 20,
       move_first: -1,
       move_second: -1,
-      animation_delay: 500
+      animation_delay: 500,
+      was_updated: true
     };
   },
   created() {
     let vueOBJ = this;
-    inputVar
-      .sort(() => Math.random() - 0.5)
-      .forEach((elm, indx) => {
-        vueOBJ.inputVarArr.push({ lbl: elm, id: indx });
-      });
+    inputVar.forEach((elm, indx) => {
+      vueOBJ.inputVarArr.push({ lbl: elm, id: indx });
+    });
+    vueOBJ.inputVarArr.sort(() => Math.random() - 0.5);
     this.inputVarArr;
+
     $("#mrForm").on("submit", function() {
       vueOBJ.SetOutput();
-      return false;
+      // return false;
     });
   },
   methods: {
+    moved(ev) {
+      this.move_first = ev.oldIndex;
+    },
     SetOutput() {
-      let output = "";
+      let output = "#";
       this.answersArr.forEach(elm => {
-        output += elm.lbl;
+        output += elm.id + "#";
       });
       $(".mrEdit").val(output);
     },
-    GetIndex(indx) {
-      return 0;
+    RemoveOpt(sel) {
+      let valIndx = this.answersArr
+        .map(function(e) {
+          return e.id;
+        })
+        .indexOf(sel.id);
+      this.answersArr.splice(valIndx, 1);
+      this.move_first = -1;
     },
-    // GetIndex(indx) {
-    //   let nrElem = this.answersArr.length;
-    //   let mij, n;
-    //   //impare
-    //   if (nrElem % 2 == 1) {
-    //     mij = Math.round(nrElem / 2); //3
-    //     n = Math.abs(indx + 1 - mij);
-    //   } else {
-    //     mij = Math.round(nrElem / 2); //3
-    //     if (indx + 1 > mij) {
-    //       n = indx - mij;
-    //     } else {
-    //       n = mij - indx - 1;
-    //     }
-    //   }
-
-    //   return mij - n;
-    // },
 
     AddSel(sel) {
       // let valIndx = this.answersArr.indexOf(sel);
@@ -117,6 +147,7 @@ export default {
       }
     },
     UpdateTabIndex() {
+      this.move_first = -1;
       let vueObj = this;
       let Tx = 0;
       let lastUp = false;
@@ -214,6 +245,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.answerRow {
+  margin: 5px;
+  background: ghostwhite;
+}
 #Instruction {
   color: grey;
   margin: 10px;
@@ -254,6 +289,7 @@ export default {
   margin-left: 10px;
   padding: 10px;
   margin-top: 10px;
+  min-width: 80%;
 }
 .AnswOpt {
   background: aliceblue;
@@ -297,19 +333,24 @@ export default {
   opacity: 0.7;
 }
 
-.srtBtn {
+.BtnCont {
   cursor: pointer;
+  /* display: inline-block; */
+  text-align: center;
+  margin-left: 5px;
+  float: right;
+}
+.srtBtn {
   background-color: #49bfbc;
   color: white;
   width: 20px;
   display: inline-block;
-  text-align: center;
 }
-.srtBtn.left {
-  margin-right: 5px;
-}
-
-.srtBtn.right {
+.closeBtn {
   margin-left: 5px;
+  color: red;
 }
+/* .srtBtn.left {
+  margin-right: 5px;
+} */
 </style>

@@ -5,8 +5,7 @@
 </template>
 
 <script>
-import ClickBuild from "./components/ClickBuild.vue";
-
+import ClickBuild from "./components/ClickBuild";
 export default {
   name: "app",
   components: {
@@ -14,7 +13,8 @@ export default {
   },
   data() {
     return {
-      appType
+      appType,
+      myArray: [{ id: 0, name: "1" }, { id: 1, name: "2" }]
     };
   }
 };
