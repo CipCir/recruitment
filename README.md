@@ -31,6 +31,7 @@ npm run lint
 ```
 
 /deploy/products/OnlineRecruitment/app
+https://staging01.ipsosinteractive.com/mrIWeb/mrIWeb.dll?I.Project=S2019975
 
 ### Customize configuration
 
