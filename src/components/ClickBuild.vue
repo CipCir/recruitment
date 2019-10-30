@@ -1,22 +1,28 @@
 <template>
   <div id="CompCont">
     <div id="Instruction">
-      Build your answer by selecting the available options from the below list and using the up/down arrows to order them.
-      <br />Note that you can unselect an answer to remove it.
+      Build your answer by selecting the available options from the below list .
+      <br />Note that you can drag and drop each option in order to sort your answers and you can remove a selection by clicking on
+      <span
+        class="closeBtn"
+      >
+        <i class="fas fa-window-close"></i>
+      </span>
+      or on the selection to remove it.
     </div>
     <div id="InptAnswers">
       <span
         class="selOpt"
-        :class="{'selected':answersArr.map(function(e) {
+        :class="[{'selected':answersArr.map(function(e) {
           return e.id;
-        }).indexOf(sel.id)>-1}"
+        }).indexOf(sel.id)>-1},{'JScomOpt':sel.lbl.indexOf('//')==0}]"
         v-for="sel in inputVarArr"
         :key="sel.id"
         @click="AddSel(sel)"
       >{{sel.lbl}}</span>
     </div>
-    <div id="OutResult" class="answerContainer">
-      <!-- <div class="answerRow" v-for="(ans,indx) in answersArr" :key="ans.id">
+    <!-- <div id="OutResult" class="answerContainer"> -->
+    <!-- <div class="answerRow" v-for="(ans,indx) in answersArr" :key="ans.id">
         <div class="srtBtn left">
           <span v-if="indx!=answersArr.length-1">
             <i class="fa fa-bars"></i>
@@ -40,8 +46,8 @@
             <i class="fa fa-bars"></i>
           </span>
         </div>
-      </div>-->
-    </div>
+    </div>-->
+    <!-- </div> -->
     <draggable
       id="OutResult"
       v-model="answersArr"
@@ -56,6 +62,9 @@
         :key="element.id"
       >
         <!-- {{element.lbl}} -->
+        <span class="srtBtn">
+          <i class="fas fa-sort"></i>
+        </span>
         <span class="AnswIndx innText">{{indx+1}}</span>
         <span
           v-if="appSetup.FormatIndent"
@@ -63,13 +72,13 @@
           class="innText"
           :class="'Indent'+TabIndx[indx]"
         >{{element.lbl}}</span>
-        <span v-else>{{element.lbl}}</span>
+        <span :class="{'JScom':element.lbl.indexOf('//')==0}" v-else>{{element.lbl}}</span>
         <div class="BtnCont right">
+          <span class="closeBtn" @click="RemoveOpt(element)">
+            <i class="fas fa-window-close"></i>
+          </span>
           <span class="srtBtn">
             <i class="fas fa-sort"></i>
-          </span>
-          <span class="closeBtn" @click="RemoveOpt(element)">
-            <i class="fas fa-trash-alt"></i>
           </span>
         </div>
       </div>
@@ -246,14 +255,21 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .answerRow {
+  cursor: pointer;
   margin: 5px;
   background: ghostwhite;
+}
+.answerRow:hover {
+  background: rgb(218, 218, 252);
 }
 #Instruction {
   color: grey;
   margin: 10px;
   padding: 5px;
   border-left: solid 4px orange;
+}
+#InptAnswers {
+  margin: 10px;
 }
 .AnswIndx {
   width: 25px;
@@ -332,23 +348,35 @@ export default {
   transition: all 0.1s ease-in-out;
   opacity: 0.7;
 }
-
+.JScom {
+  color: #00bbb6;
+}
+.JScomOpt {
+  color: #025d5a;
+}
 .BtnCont {
-  cursor: pointer;
   /* display: inline-block; */
   text-align: center;
   margin-left: 5px;
   float: right;
 }
 .srtBtn {
-  background-color: #49bfbc;
-  color: white;
+  background: rgb(218, 218, 252);
+  color: #999;
   width: 20px;
   display: inline-block;
+  text-align: center;
+  margin: 0 3px;
 }
 .closeBtn {
   margin-left: 5px;
-  color: red;
+  color: #e07575;
+  width: 19px;
+  height: 19px;
+  /* transition: transform 0.2s; */
+}
+.closeBtn > i:hover {
+  transform: scale(1.2);
 }
 /* .srtBtn.left {
   margin-right: 5px;
